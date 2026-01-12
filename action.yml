@@ -1,0 +1,39 @@
+name: 'Hashnode Publish'
+description: 'Publish markdown posts to Hashnode with full CRUD support - create, update, delete posts, drafts, and series'
+author: 'Rahul Sehrawat'
+
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
+
+inputs:
+  access-token:
+    description: 'Hashnode Personal Access Token (from https://hashnode.com/settings/developer)'
+    required: true
+  publication-id:
+    description: 'Hashnode Publication ID (from your publication dashboard URL)'
+    required: true
+  publication-host:
+    description: 'Your Hashnode publication host (e.g., myblog.hashnode.dev)'
+    required: false
+    default: ''
+  posts-directory:
+    description: 'Directory containing markdown posts'
+    required: false
+    default: 'posts'
+
+outputs:
+  published:
+    description: 'Number of posts published'
+  updated:
+    description: 'Number of posts updated'
+  deleted:
+    description: 'Number of posts deleted'
+  failed:
+    description: 'Number of posts that failed'
+  summary:
+    description: 'JSON summary of all operations'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
