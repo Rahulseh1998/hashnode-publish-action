@@ -53,7 +53,10 @@ async function processFile(
   // Handle series
   let seriesId: string | undefined;
   if (frontmatter.seriesSlug) {
-    const series = await client.getOrCreateSeries(frontmatter.seriesSlug);
+    const series = await client.getOrCreateSeries(
+      frontmatter.seriesSlug,
+      frontmatter.seriesName
+    );
     if (series) {
       seriesId = series.id;
       core.info(`  Using series: ${series.name}`);
@@ -119,7 +122,7 @@ async function run(): Promise<void> {
       host = `${publicationId}.hashnode.dev`;
     }
 
-    core.info('Hashnode Publish Action v1.0.0');
+    core.info('Hashnode Publish Action v1.1.0');
     core.info(`Publication host: ${host}`);
     core.info(`Posts directory: ${postsDirectory}`);
 

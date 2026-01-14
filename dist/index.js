@@ -25729,11 +25729,22 @@ class HashnodeClient {
     buildTagsInput(tagsString) {
         if (!tagsString)
             return [];
-        const tags = tagsString.split(',').map((t) => t.trim());
+        const tags = tagsString
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0);
         return tags.slice(0, 5).map((tag) => ({
             slug: tag.toLowerCase().replace(/\s+/g, '-'),
             name: tag,
         }));
+    }
+    buildCoAuthorsInput(coAuthorsString) {
+        if (!coAuthorsString)
+            return [];
+        return coAuthorsString
+            .split(',')
+            .map((u) => u.trim())
+            .filter((u) => u.length > 0);
     }
     async getPublication() {
         const query = `
@@ -25851,6 +25862,18 @@ class HashnodeClient {
         if (frontmatter.publishedAt) {
             input.publishedAt = frontmatter.publishedAt;
         }
+        // Add co-authors if specified
+        const coAuthors = this.buildCoAuthorsInput(frontmatter.coAuthors);
+        if (coAuthors.length > 0) {
+            input.coAuthors = coAuthors;
+        }
+        // Add SEO metadata if specified
+        if (frontmatter.metaTitle || frontmatter.metaDescription) {
+            input.metaTags = {
+                title: frontmatter.metaTitle || undefined,
+                description: frontmatter.metaDescription || undefined,
+            };
+        }
         const mutation = `
       mutation PublishPost($input: PublishPostInput!) {
         publishPost(input: $input) {
@@ -25874,6 +25897,10 @@ class HashnodeClient {
             contentMarkdown: content,
             tags: this.buildTagsInput(frontmatter.tags),
             subtitle: frontmatter.subtitle || undefined,
+            settings: {
+                enableTableOfContent: frontmatter.enableToc === true,
+                disableComments: frontmatter.disableComments === true,
+            },
         };
         if (frontmatter.cover) {
             input.coverImageOptions = { coverImageURL: frontmatter.cover };
@@ -25883,6 +25910,18 @@ class HashnodeClient {
         }
         if (seriesId) {
             input.seriesId = seriesId;
+        }
+        // Add co-authors if specified
+        const coAuthors = this.buildCoAuthorsInput(frontmatter.coAuthors);
+        if (coAuthors.length > 0) {
+            input.coAuthors = coAuthors;
+        }
+        // Add SEO metadata if specified
+        if (frontmatter.metaTitle || frontmatter.metaDescription) {
+            input.metaTags = {
+                title: frontmatter.metaTitle || undefined,
+                description: frontmatter.metaDescription || undefined,
+            };
         }
         const mutation = `
       mutation UpdatePost($input: UpdatePostInput!) {
@@ -26008,7 +26047,7 @@ class HashnodeClient {
         const result = await this.graphqlRequest(mutation, { input });
         return result.createSeries.series;
     }
-    async getOrCreateSeries(seriesSlug) {
+    async getOrCreateSeries(seriesSlug, seriesName) {
         if (!seriesSlug)
             return null;
         // First try to find existing series
@@ -26016,11 +26055,12 @@ class HashnodeClient {
         if (series) {
             return series;
         }
-        // Create series name from slug
-        const name = seriesSlug
-            .split('-')
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+        // Use provided name or generate from slug
+        const name = seriesName ||
+            seriesSlug
+                .split('-')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
         try {
             series = await this.createSeries(name, seriesSlug);
             return series;
@@ -26125,7 +26165,7 @@ async function processFile(client, filePath) {
     // Handle series
     let seriesId;
     if (frontmatter.seriesSlug) {
-        const series = await client.getOrCreateSeries(frontmatter.seriesSlug);
+        const series = await client.getOrCreateSeries(frontmatter.seriesSlug, frontmatter.seriesName);
         if (series) {
             seriesId = series.id;
             core.info(`  Using series: ${series.name}`);
@@ -26176,7 +26216,7 @@ async function run() {
             core.warning('publication-host not provided. Will attempt to fetch from publication.');
             host = `${publicationId}.hashnode.dev`;
         }
-        core.info('Hashnode Publish Action v1.0.0');
+        core.info('Hashnode Publish Action v1.1.0');
         core.info(`Publication host: ${host}`);
         core.info(`Posts directory: ${postsDirectory}`);
         // Initialize client

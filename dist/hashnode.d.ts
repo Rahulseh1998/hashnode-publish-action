@@ -6,6 +6,7 @@ export declare class HashnodeClient {
     constructor(accessToken: string, publicationId: string, publicationHost: string);
     private graphqlRequest;
     private buildTagsInput;
+    private buildCoAuthorsInput;
     getPublication(): Promise<Publication | null>;
     getPostBySlug(slug: string): Promise<Post | null>;
     getSeriesBySlug(slug: string): Promise<Series | null>;
@@ -17,5 +18,5 @@ export declare class HashnodeClient {
     updateDraft(draftId: string, frontmatter: Frontmatter, content: string): Promise<Draft>;
     publishDraft(draftId: string): Promise<Post>;
     createSeries(name: string, slug: string): Promise<Series>;
-    getOrCreateSeries(seriesSlug: string): Promise<Series | null>;
+    getOrCreateSeries(seriesSlug: string, seriesName?: string): Promise<Series | null>;
 }

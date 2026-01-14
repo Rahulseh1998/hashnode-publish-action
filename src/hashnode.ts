@@ -68,12 +68,24 @@ export class HashnodeClient {
   private buildTagsInput(tagsString?: string): TagInput[] {
     if (!tagsString) return [];
 
-    const tags = tagsString.split(',').map((t) => t.trim());
+    const tags = tagsString
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
 
     return tags.slice(0, 5).map((tag) => ({
       slug: tag.toLowerCase().replace(/\s+/g, '-'),
       name: tag,
     }));
+  }
+
+  private buildCoAuthorsInput(coAuthorsString?: string): string[] {
+    if (!coAuthorsString) return [];
+
+    return coAuthorsString
+      .split(',')
+      .map((u) => u.trim())
+      .filter((u) => u.length > 0);
   }
 
   async getPublication(): Promise<Publication | null> {
@@ -213,6 +225,20 @@ export class HashnodeClient {
       input.publishedAt = frontmatter.publishedAt;
     }
 
+    // Add co-authors if specified
+    const coAuthors = this.buildCoAuthorsInput(frontmatter.coAuthors);
+    if (coAuthors.length > 0) {
+      input.coAuthors = coAuthors;
+    }
+
+    // Add SEO metadata if specified
+    if (frontmatter.metaTitle || frontmatter.metaDescription) {
+      input.metaTags = {
+        title: frontmatter.metaTitle || undefined,
+        description: frontmatter.metaDescription || undefined,
+      };
+    }
+
     const mutation = `
       mutation PublishPost($input: PublishPostInput!) {
         publishPost(input: $input) {
@@ -246,6 +272,10 @@ export class HashnodeClient {
       contentMarkdown: content,
       tags: this.buildTagsInput(frontmatter.tags),
       subtitle: frontmatter.subtitle || undefined,
+      settings: {
+        enableTableOfContent: frontmatter.enableToc === true,
+        disableComments: frontmatter.disableComments === true,
+      },
     };
 
     if (frontmatter.cover) {
@@ -258,6 +288,20 @@ export class HashnodeClient {
 
     if (seriesId) {
       input.seriesId = seriesId;
+    }
+
+    // Add co-authors if specified
+    const coAuthors = this.buildCoAuthorsInput(frontmatter.coAuthors);
+    if (coAuthors.length > 0) {
+      input.coAuthors = coAuthors;
+    }
+
+    // Add SEO metadata if specified
+    if (frontmatter.metaTitle || frontmatter.metaDescription) {
+      input.metaTags = {
+        title: frontmatter.metaTitle || undefined,
+        description: frontmatter.metaDescription || undefined,
+      };
     }
 
     const mutation = `
@@ -420,7 +464,10 @@ export class HashnodeClient {
     return result.createSeries.series;
   }
 
-  async getOrCreateSeries(seriesSlug: string): Promise<Series | null> {
+  async getOrCreateSeries(
+    seriesSlug: string,
+    seriesName?: string
+  ): Promise<Series | null> {
     if (!seriesSlug) return null;
 
     // First try to find existing series
@@ -429,11 +476,13 @@ export class HashnodeClient {
       return series;
     }
 
-    // Create series name from slug
-    const name = seriesSlug
-      .split('-')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    // Use provided name or generate from slug
+    const name =
+      seriesName ||
+      seriesSlug
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 
     try {
       series = await this.createSeries(name, seriesSlug);

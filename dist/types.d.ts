@@ -5,12 +5,16 @@ export interface Frontmatter {
     subtitle?: string;
     cover?: string;
     seriesSlug?: string;
+    seriesName?: string;
     enableToc?: boolean;
     saveAsDraft?: boolean;
     delete?: boolean;
     canonicalUrl?: string;
     disableComments?: boolean;
     publishedAt?: string;
+    coAuthors?: string;
+    metaTitle?: string;
+    metaDescription?: string;
 }
 export interface ParsedFile {
     frontmatter: Frontmatter;
