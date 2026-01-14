@@ -205,7 +205,6 @@ export class HashnodeClient {
       subtitle: frontmatter.subtitle || undefined,
       settings: {
         enableTableOfContent: frontmatter.enableToc === true,
-        disableComments: frontmatter.disableComments === true,
       },
     };
 
