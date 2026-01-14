@@ -26175,7 +26175,8 @@ async function processFile(client, filePath) {
         // Check if there's a draft to publish
         const existingDraft = await client.getDraftBySlug(frontmatter.slug);
         if (existingDraft) {
-            await client.updateDraft(existingDraft.id, frontmatter, markdown);
+            // Publish the draft directly without updating first
+            // The updateDraft API has limitations on what fields can be updated
             const post = await client.publishDraft(existingDraft.id);
             return {
                 status: 'published_from_draft',
