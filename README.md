@@ -2,7 +2,7 @@
 
 A GitHub Action to publish markdown posts to Hashnode with full CRUD support. Create, update, and delete posts directly from your GitHub repository.
 
-[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Hashnode%20Publish-blue?logo=github)](https://github.com/marketplace/actions/hashnode-publish)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Publish%20to%20Hashnode-blue?logo=github)](https://github.com/marketplace/actions/publish-to-hashnode)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Why This Action?

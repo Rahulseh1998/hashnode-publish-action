@@ -1,4 +1,4 @@
-name: 'Hashnode Publish'
+name: 'Publish to Hashnode'
 description: 'Publish markdown posts to Hashnode with full CRUD support - create, update, delete posts, drafts, and series'
 author: 'Rahul Sehrawat'
 
