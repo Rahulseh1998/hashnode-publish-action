@@ -25985,9 +25985,6 @@ class HashnodeClient {
             contentMarkdown: content,
             tags: this.buildTagsInput(frontmatter.tags),
             subtitle: frontmatter.subtitle || undefined,
-            settings: {
-                enableTableOfContent: frontmatter.enableToc === true,
-            },
         };
         if (frontmatter.cover) {
             input.coverImageOptions = { coverImageURL: frontmatter.cover };
